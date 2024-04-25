@@ -1,73 +1,36 @@
-import { useEffect, useState } from 'react'
 import './App.css'
 import MessagesList from './MessagesList'
 import MessageInput from './MessageInput'
 import { Message } from './MessageInterface'
+import { useEffect, useState } from 'react'
 import Login from './Login'
 
 function App() {
     const [socket, setSocket] = useState<WebSocket>()
     const [messages, setMessages] = useState<Message[]>([])
+    const [connected, setConnected] = useState<boolean>(false)
 
     useEffect(() => {
-        const username = localStorage.getItem("username") ?? ""
-        if (!username) return
 
-        connectSocket()
-    }, [])
+        return () => {
+            if (!socket) return
+            socket.close()
+        }
+    }, [socket])
 
     return (
         <>
-            <Login />
-            <div className='hidden relative h-lvh'>
+            <div className={!connected ? 'h-screen flex items-center text-center justify-center overflow-hidden' : 'hidden'}>
+                <Login setSocket={setSocket} setConnected={() => setConnected(true)} setMessages={setMessages} />
+            </div>
+
+            <div className={connected ? 'flex flex-col max-h-screen ' : 'hidden'}>
                 <MessagesList messages={messages} />
                 <MessageInput socket={socket} />
             </div>
         </>
     )
 
-    function connectSocket() {
-        const webSocket = new WebSocket("ws://localhost:8080/ws")
-
-        webSocket.onopen = (e) => {
-            console.log('Socket Opened', e)
-        }
-
-        webSocket.onclose = () => {
-            console.log('Socket Closed');
-        }
-
-        webSocket.onerror = (error) => {
-            console.log(error)
-        }
-
-        webSocket.onmessage = (e: MessageEvent) => {
-            let receivedObj = e.data
-
-            try {
-                receivedObj = JSON.parse(receivedObj)
-
-
-                setMessages((prevList: Message[]) => [
-                    ...prevList,
-                    {
-                        username: receivedObj.id,
-                        body: receivedObj.message,
-                        is_new: receivedObj.is_new,
-                    } as Message
-                ])
-            } catch (e) {
-                console.error(e)
-            }
-
-        }
-
-        setSocket(webSocket)
-
-        return () => {
-            webSocket.close();
-        };
-    }
 }
 
 export default App
