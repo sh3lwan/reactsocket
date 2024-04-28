@@ -9,9 +9,10 @@ function App() {
     const [socket, setSocket] = useState<WebSocket>()
     const [messages, setMessages] = useState<Message[]>([])
     const [connected, setConnected] = useState<boolean>(false)
+    const [username, setUsername] = useState<string>("")
+
 
     useEffect(() => {
-
         return () => {
             if (!socket) return
             socket.close()
@@ -21,11 +22,15 @@ function App() {
     return (
         <>
             <div className={!connected ? 'h-screen flex items-center text-center justify-center overflow-hidden' : 'hidden'}>
-                <Login setSocket={setSocket} setConnected={() => setConnected(true)} setMessages={setMessages} />
+                <Login username={username}
+                    setSocket={setSocket}
+                    setConnected={setConnected}
+                    setMessages={setMessages}
+                    setUsername={setUsername} />
             </div>
 
-            <div className={connected ? 'flex flex-col max-h-screen ' : 'hidden'}>
-                <MessagesList messages={messages} />
+            <div className={connected ? 'flex flex-col justify-between h-screen ' : 'hidden'}>
+                <MessagesList messages={messages} username={username} />
                 <MessageInput socket={socket} />
             </div>
         </>

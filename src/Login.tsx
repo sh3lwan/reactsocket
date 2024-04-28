@@ -1,13 +1,33 @@
-import { FormEvent, useState } from "react"
+import { FormEvent, useEffect } from "react"
 import { Message } from "./MessageInterface"
 
-export default function Login({ setConnected, setMessages, setSocket }: { setConnected: any, setMessages: any, setSocket: any }) {
-    const [username, setUsername] = useState<string>("")
+export default function Login({ username, setConnected, setMessages, setSocket, setUsername }: {
+    username: string,
+    setConnected: CallableFunction,
+    setMessages: CallableFunction,
+    setSocket: CallableFunction,
+    setUsername: CallableFunction
+}) {
 
+    useEffect(() => {
+        const savedUsername = localStorage.getItem("username")
+
+        if (savedUsername) {
+            handleLogin(savedUsername)
+            setUsername(savedUsername)
+        }
+
+    }, [])
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
-        const response = await fetch(`http://localhost:8080/api/connect?username=${username}`)
+
+        await handleLogin(username)
+    }
+
+    async function handleLogin(username: string) {
+
+        const response = await fetch(`http://localhost:8080/api/connect`)
 
         if (response.status === 200) {
             const socket = await connectSocket()
@@ -18,28 +38,21 @@ export default function Login({ setConnected, setMessages, setSocket }: { setCon
                 body: ""
             }
 
-            socket?.send(JSON.stringify(firstMessage))
 
-            const messages: Message[] = []
+            socket?.send(JSON.stringify(firstMessage))
 
             const data = await response.json()
 
-            data.messages?.forEach((message) => {
-                messages.push({
-                    ...message,
-                    body: message.message
-                })
-            });
+            const messages = data.messages ?? []
 
             setSocket(socket)
 
-            setMessages(messages)
+            setMessages((prevList: Message[]) => [...prevList, ...messages])
 
             setConnected(true)
 
+            localStorage.setItem("username", username)
         }
-
-
     }
 
     function connectSocket() {
@@ -69,11 +82,7 @@ export default function Login({ setConnected, setMessages, setSocket }: { setCon
 
                     setMessages((prevList: Message[]) => [
                         ...prevList,
-                        {
-                            username: receivedObj.username,
-                            body: receivedObj.message,
-                            is_new: receivedObj.is_new,
-                        } as Message
+                        receivedObj
                     ])
                 } catch (e) {
                     console.error(e)
