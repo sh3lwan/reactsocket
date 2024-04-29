@@ -65,7 +65,7 @@ export default function Login({ username, setConnected, setMessages, setSocket, 
     }
 
     function connectSocket() {
-        const webSocket = new WebSocket("ws://localhost:8080/ws")
+        const webSocket = new WebSocket(`ws://${import.meta.env.VITE_API_URL}:8080/ws`)
 
         return new Promise<WebSocket>((resolve, fail) => {
             webSocket.onopen = (e) => {
