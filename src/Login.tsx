@@ -27,32 +27,41 @@ export default function Login({ username, setConnected, setMessages, setSocket, 
 
     async function handleLogin(username: string) {
 
-        const response = await fetch(`http://localhost:8080/api/connect`)
+        try {
+            const response = await fetch(`http://localhost:8080/api/connect`)
+            
+            if (response.status === 200) {
+                const socket = await connectSocket()
 
-        if (response.status === 200) {
-            const socket = await connectSocket()
 
-            const firstMessage: Message = {
-                username: username,
-                is_new: true,
-                body: ""
+                const message: Message = {
+                    username: username,
+                    is_new: true,
+                    body: ""
+                }
+
+                socket?.send(JSON.stringify(message))
+
+                const data = await response.json()
+
+                const messages = data.Data.messages ?? []
+
+                console.log("messages", messages)
+
+                setSocket(socket)
+
+                setMessages((prevList: Message[]) => [...prevList, ...messages])
+
+                setConnected(true)
+
+                localStorage.setItem("username", username)
             }
-
-
-            socket?.send(JSON.stringify(firstMessage))
-
-            const data = await response.json()
-
-            const messages = data.messages ?? []
-
-            setSocket(socket)
-
-            setMessages((prevList: Message[]) => [...prevList, ...messages])
-
-            setConnected(true)
-
-            localStorage.setItem("username", username)
         }
+        catch (e) {
+            console.log(e)
+        }
+
+
     }
 
     function connectSocket() {

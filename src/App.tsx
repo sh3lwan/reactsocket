@@ -10,6 +10,7 @@ function App() {
     const [messages, setMessages] = useState<Message[]>([])
     const [connected, setConnected] = useState<boolean>(false)
     const [username, setUsername] = useState<string>("")
+    const [receiver, setReceiver] = useState<string>("")
 
 
     useEffect(() => {
@@ -30,11 +31,28 @@ function App() {
             </div>
 
             <div className={connected ? 'flex flex-col justify-between h-screen ' : 'hidden'}>
-                <MessagesList messages={messages} username={username} />
-                <MessageInput socket={socket} />
+                <MessagesList messages={messages} username={username} handleReceiver={handleReceiver} />
+                <MessageInput socket={socket} receiver={receiver} />
             </div>
         </>
     )
+
+    async function handleReceiver(receiver: string) {
+        try {
+            const response = await fetch(`http://localhost:8080/api/connect?receiver=${receiver}`)
+
+            const json = await response.json()
+
+            const messages = json.Data.messages ?? []
+
+            setMessages(messages)
+
+            setReceiver(receiver)
+        } catch (e) {
+            console.error(e)
+        }
+
+    }
 
 }
 

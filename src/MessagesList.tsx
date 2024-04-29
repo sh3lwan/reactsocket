@@ -1,18 +1,18 @@
 import { useLayoutEffect, useRef } from 'react'
 import { Message } from './MessageInterface'
 import UsernameItem from './UsernameItem'
-function MessagesList(props: { messages: Message[], username: string }) {
+function MessagesList({ messages, username, handleReceiver }: { messages: Message[], username: string, handleReceiver: CallableFunction }) {
     const messagesContainer = useRef<HTMLUListElement>(null)
     useLayoutEffect(() => {
         const current = messagesContainer.current
         current?.scrollTo(0, current?.scrollHeight ?? 0)
-    }, [props.messages])
-    console.log(props.messages, props.username)
+    }, [messages])
+
     return (
         <ul className='flex flex-col items-start list-none m-2 overflow-y-scroll' ref={messagesContainer}>
-            {props.messages?.map((message: Message) =>
+            {messages?.map((message: Message) =>
                 <li key={message.id}>
-                    <UsernameItem message={message} username={props.username} />
+                    <UsernameItem message={message} username={username} handleReceiver={handleReceiver} />
                     <span className='font-bold'>{message.body}</span>
                 </li>
             )}
