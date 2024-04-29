@@ -28,14 +28,14 @@ export default function Login({ username, setConnected, setMessages, setSocket, 
     async function handleLogin(username: string) {
 
         try {
-            const response = await fetch(`http://localhost:8080/api/connect`)
+            const response = await fetch(`http://${import.meta.env.VITE_API_URL}:8080/api/connect`)
             
             if (response.status === 200) {
                 const socket = await connectSocket()
 
-
                 const message: Message = {
                     username: username,
+                    receiver: "",
                     is_new: true,
                     body: ""
                 }
