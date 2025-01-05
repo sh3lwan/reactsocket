@@ -28,8 +28,9 @@ export default function Login({ username, setConnected, setMessages, setSocket, 
     async function handleLogin(username: string) {
 
         try {
-            const response = await fetch(`http://${import.meta.env.VITE_API_URL}:8080/api/connect`)
+            const response = await fetch(`http://${import.meta.env.VITE_API_URL}/api/connect?receiver=${username}`)
             
+
             if (response.status === 200) {
                 const socket = await connectSocket()
 
@@ -65,7 +66,7 @@ export default function Login({ username, setConnected, setMessages, setSocket, 
     }
 
     function connectSocket() {
-        const webSocket = new WebSocket(`ws://${import.meta.env.VITE_API_URL}:8080/ws`)
+        const webSocket = new WebSocket(`ws://${import.meta.env.VITE_API_URL}/ws`)
 
         return new Promise<WebSocket>((resolve, fail) => {
             webSocket.onopen = (e) => {

@@ -39,7 +39,7 @@ function App() {
 
     async function handleReceiver(receiver: string) {
         try {
-            const response = await fetch(`http://${import.meta.env.VITE_API_URL}:8080/api/connect?receiver=${receiver}`)
+            const response = await fetch(`http://${import.meta.env.VITE_API_URL}/api/connect?receiver=${receiver}`)
 
             const json = await response.json()
 
