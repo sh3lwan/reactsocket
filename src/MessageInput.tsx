@@ -1,7 +1,7 @@
 import react, { FormEvent } from "react"
 import { Message } from "./MessageInterface"
 
-function MessageInput({ socket, receiver }: { socket: WebSocket | undefined, receiver: string | null }) {
+function MessageInput({ socket, receiver }: { socket: WebSocket | undefined, receiver: string | undefined }) {
     const [message, setMessage] = react.useState<string>()
 
     return (
