@@ -15,7 +15,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - "${APP_PORT:-80}:80"
     volumes:
       - build_volume:/usr/share/nginx/html
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
