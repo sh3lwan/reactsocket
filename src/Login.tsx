@@ -28,7 +28,7 @@ export default function Login({ username, setConnected, setMessages, setSocket, 
     async function handleLogin(username: string) {
 
         try {
-            const response = await fetch(`http://${import.meta.env.VITE_API_URL}/api/connect?receiver=${username}`)
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/connect?receiver=${username}`)
             
 
             if (response.status === 200) {
