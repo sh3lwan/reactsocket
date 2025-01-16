@@ -22,4 +22,4 @@ echo "Switching to SSL-enabled config..."
 cp nginx/nginx.after.conf nginx/nginx.conf
 
 # Switch to SSL-enabled configuration
-docker-compose restart nginx
+docker compose restart nginx
