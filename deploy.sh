@@ -4,7 +4,7 @@
 echo "Starting Nginx with temporary config..."
 cp nginx/nginx.before.conf nginx/nginx.conf
 # Start Nginx in non-SSL mode
-docker-compose up -d nginx
+docker compose up -d nginx
 
 # Step 2: Run Certbot to obtain SSL certificate
 echo "Requesting SSL certificate..."
