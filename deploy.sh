@@ -1,13 +1,20 @@
 #!/bin/bash
 
-# Step 1: Start Nginx with pre-certificate config
-echo "Starting Nginx with temporary config..."
+# step 1: start nginx with pre-certificate config
+echo "starting nginx with temporary config..."
 cp nginx/nginx.before.conf nginx/nginx.conf
-# Start Nginx in non-SSL mode
+# start nginx in non-ssl mode
 docker compose up -d nginx
 
-# Step 2: Run Certbot to obtain SSL certificate
-echo "Requesting SSL certificate..."
+# Wait until nginx is up and healthy
+echo "Waiting for nginx to be ready..."
+while ! docker inspect --format='{{.State.Health.Status}}' $(docker ps -q --filter "name=nginx") | grep -q "healthy"; do
+    echo "Nginx is not ready yet. Retrying in 2 seconds..."
+    sleep 2
+done
+
+# step 2: run certbot to obtain ssl certificate
+echo "requesting ssl certificate..."
 docker run -it --rm \
     -v $(pwd)/certbot/etc:/etc/letsencrypt \
     -v $(pwd)/certbot/lib:/var/lib/letsencrypt \
@@ -17,9 +24,9 @@ docker run -it --rm \
     --webroot-path=/var/www/certbot \
     -d chat.sh3lwan.dev
 
-# Step 3: Switch to SSL-enabled config
-echo "Switching to SSL-enabled config..."
+# step 3: switch to ssl-enabled config
+echo "switching to ssl-enabled config..."
 cp nginx/nginx.after.conf nginx/nginx.conf
 
-# Switch to SSL-enabled configuration
-docker compose up --build -d --remove-orphans
+# switch to ssl-enabled configuration
+docker comopse down && docker compose up --build -d --remove-orphans
