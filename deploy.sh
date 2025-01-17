@@ -6,23 +6,35 @@ cp nginx/nginx.before.conf nginx/nginx.conf
 # start nginx in non-ssl mode
 docker compose up -d nginx
 
-# Wait until nginx is up and healthy
-#echo "Waiting for nginx to be ready..."
-#while ! docker inspect --format='{{.State.Health.Status}}' $(docker ps -q --filter "name=nginx") | grep -q "healthy"; do
-#    echo "Nginx is not ready yet. Retrying in 2 seconds..."
-#    sleep 2
-#done
+# Wait for nginx to be ready
+echo "Waiting for nginx to be ready..."
+for i in {1..10}; do
+    if curl -s http://localhost > /dev/null; then
+        echo "Nginx is ready."
+        break
+    fi
+    echo "Nginx is not ready yet. Retrying in 2 seconds..."
+    sleep 2
+    if [ $i -eq 10 ]; then
+        echo "Nginx did not become ready in time. Exiting."
+        exit 1
+    fi
+done
 
-# step 2: run certbot to obtain ssl certificate
-echo "requesting ssl certificate..."
-docker run -it --rm \
-    -v $(pwd)/certbot/etc:/etc/letsencrypt \
-    -v $(pwd)/certbot/lib:/var/lib/letsencrypt \
-    -v $(pwd)/nginx/html:/var/www/certbot \
-    certbot/certbot certonly \
-    --webroot \
-    --webroot-path=/var/www/certbot \
-    -d chat.sh3lwan.dev
+# Step 2: Check for certbot/ directory
+if [ -d "$(pwd)/certbot" ]; then
+    echo "Certificate already exists. Skipping certbot step."
+else
+    echo "Requesting SSL certificate..."
+    docker run -it --rm \
+        -v $(pwd)/certbot/etc:/etc/letsencrypt \
+        -v $(pwd)/certbot/lib:/var/lib/letsencrypt \
+        -v $(pwd)/nginx/html:/var/www/certbot \
+        certbot/certbot certonly \
+        --webroot \
+        --webroot-path=/var/www/certbot \
+        -d chat.sh3lwan.dev
+fi
 
 # step 3: switch to ssl-enabled config
 echo "switching to ssl-enabled config..."
