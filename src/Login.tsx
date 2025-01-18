@@ -66,7 +66,7 @@ export default function Login({ username, setConnected, setMessages, setSocket, 
     }
 
     function connectSocket() {
-        const webSocket = new WebSocket(import.meta.env.WEBSOCKET_URL ?? '/v1/ws')
+        const webSocket = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL ?? '/ws')
 
         return new Promise<WebSocket>((resolve, fail) => {
             webSocket.onopen = (e) => {
